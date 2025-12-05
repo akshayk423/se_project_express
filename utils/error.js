@@ -1,0 +1,9 @@
+const BAD_REQUEST_CODE = 400;
+const DEFAULT_ERROR_CODE = 500;
+const NOT_FOUND = 404;
+
+module.exports = {
+  BAD_REQUEST_CODE,
+  DEFAULT_ERROR_CODE,
+  NOT_FOUND,
+};
