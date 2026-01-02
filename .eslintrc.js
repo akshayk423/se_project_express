@@ -23,5 +23,8 @@ module.exports = {
   },
   rules: {
     'no-underscore-dangle': ['error', { allow: ['_id'] }],
+    'implicit-arrow-linebreak': 'off',
+    'function-paren-newline': 'off',
+    'object-curly-newline': 'off',
   },
 };
