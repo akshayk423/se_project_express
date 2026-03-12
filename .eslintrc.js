@@ -26,5 +26,9 @@ module.exports = {
     'implicit-arrow-linebreak': 'off',
     'function-paren-newline': 'off',
     'object-curly-newline': 'off',
+    'no-unused-vars': ['error', { argsIgnorePattern: 'next' }],
+    // Disable newline-per-chained-call to avoid false positives for Joi chains
+    // (e.g. `.messages({...})`) that Prettier sometimes formats on one line.
+    'newline-per-chained-call': 'off',
   },
 };

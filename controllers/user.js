@@ -1,26 +1,18 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  BAD_REQUEST_CODE,
-  DEFAULT_ERROR_CODE,
-  NOT_FOUND,
-  CONFLICT,
-  INCORRECT_CREDENTIALS,
-} = require('../utils/error');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
+const ConflictError = require('../errors/conflict-err');
 
 const { JWT_SECRET } = require('../utils/config');
 
-const getUsers = (req, res) =>
+const getUsers = (req, res, next) =>
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch(() =>
-      res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: `${DEFAULT_ERROR_CODE}: Generic Server Error` }),
-    );
+    .catch((err) => next(err));
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   return bcrypt.hash(password, 10).then((hash) =>
     User.create({
@@ -36,52 +28,40 @@ const createUser = (req, res) => {
       })
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          return res
-            .status(BAD_REQUEST_CODE)
-            .send({ message: 'Error: Invalid data' });
+          return next(new BadRequestError('Error: Invalid data'));
         }
         if (err.code === 11000) {
-          return res
-            .status(CONFLICT)
-            .send({ message: 'Error: Email already exists' });
+          return next(new ConflictError('Error: Email already exists'));
         }
-        return res
-          .status(DEFAULT_ERROR_CODE)
-          .send({ message: `${DEFAULT_ERROR_CODE}: Server Error` });
+        return next(err);
       }),
   );
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   return User.findById(userId)
     .orFail()
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(BAD_REQUEST_CODE)
-          .send({ message: 'Invalid User ID: User ID not found' });
+        return next(new BadRequestError('Invalid User ID: User ID not found'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'User not found' });
+        return next(new NotFoundError('User not found'));
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: `${DEFAULT_ERROR_CODE}: Server Error` });
+      return next(err);
     });
 };
 
-const userLogin = (req, res) => {
+const userLogin = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email) {
-    return res.status(BAD_REQUEST_CODE).send({ message: 'Email is required' });
+    return next(new BadRequestError('Email is required'));
   }
   if (!password) {
-    return res
-      .status(BAD_REQUEST_CODE)
-      .send({ message: 'Password is required' });
+    return next(new BadRequestError('Password is required'));
   }
 
   return User.findUserByCredentials(email, password)
@@ -91,12 +71,10 @@ const userLogin = (req, res) => {
       });
       res.status(200).send({ message: 'Login successful', data: user, token });
     })
-    .catch((err) =>
-      res.status(INCORRECT_CREDENTIALS).send({ message: err.message }),
-    );
+    .catch((err) => next(err));
 };
 
-const modifyUser = (req, res) => {
+const modifyUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
 
@@ -108,22 +86,18 @@ const modifyUser = (req, res) => {
     .orFail()
     .then((updatedUser) => {
       if (!updatedUser) {
-        return res.status(NOT_FOUND).send({ message: 'User not found' });
+        return next(new NotFoundError('User not found'));
       }
       return res.status(200).send({ data: updatedUser });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(BAD_REQUEST_CODE)
-          .send({ message: 'Error: Invalid data for user update' });
+        return next(new BadRequestError('Error: Invalid data for user update'));
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND).send({ message: 'User not found' });
+        return next(new NotFoundError('User not found'));
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: `${DEFAULT_ERROR_CODE}: Server Error` });
+      return next(err);
     });
 };
 
