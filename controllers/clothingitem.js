@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const Items = require('../models/clothingitem');
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
@@ -12,10 +13,12 @@ const getItems = (req, res, next) => {
     .catch((err) => {
       // No items found
       if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError('No items found'));
+        res.status(200).send({ data: [] }); // Return empty array if no items found
       }
       // Other errors
-      return next(err);
+      if (err.name !== 'DocumentNotFoundError') {
+        return next(err);
+      }
     });
 };
 
