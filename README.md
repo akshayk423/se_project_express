@@ -1,5 +1,9 @@
 # ☔WTWR (What to Wear?): Back End
 
+[Try it out Here](https://weather-wear.zanity.net/)
+
+[Link to frontend repo](https://github.com/akshayk423/se_project_react)
+
 The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
 
 ## Running the Project
@@ -111,4 +115,11 @@ Before committing your code, make sure you edit the file `sprint.txt` in the roo
 
 ### Pitch Video
 
+Check out these videos, where I describe my project
+and some challenges I faced while building it:
+
+Sprint 13
 [Click Here](https://www.loom.com/share/982ad1317f7a480ab2e19f090f791839)
+
+Sprint 15
+[Click Here](https://www.loom.com/share/ff015a81609f4cc689c60cfc2d19036f)

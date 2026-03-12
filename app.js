@@ -1,9 +1,17 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
+
 const cors = require('cors');
+
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { MONGODB_URI, PORT } = require('./utils/config');
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
+
 app.use(
   cors({
     origin: 'http://localhost:3000',
@@ -18,7 +26,16 @@ mongoose.connect(MONGODB_URI);
 
 const routes = require('./routes/index');
 
+app.use(requestLogger);
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
 app.use('/', routes);
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   /* eslint-disable-next-line no-console */
